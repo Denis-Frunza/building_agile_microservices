@@ -1,0 +1,286 @@
+{
+	"info": {
+		"_postman_id": "767693d8-4acb-4eba-afcc-d58feae4bca9",
+		"name": "Идемпотентость и коммутативность API в HTTP и очередях",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31772972"
+	},
+	"item": [
+		{
+			"name": "Регистрация юзера",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n           \"username\": \"denis.test2\",\n           \"email\": \"frunzadenis2.93@gmail.com\",\n           \"password1\": \"123456789ab!\",\n           \"password2\": \"123456789ab!\",\n           \"status\": \"Active\",\n           \"gender\": \"M\",\n           \"first_name\": \"Denis\",\n           \"last_name\": \"Frunza\",\n           \"phone_number\": \"1234567899\"\n         }"
+				},
+				"url": {
+					"raw": "http://localhost:8000/user/api/auth/register/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"user",
+						"api",
+						"auth",
+						"register",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Логин",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Extract token and store in environment variable\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"otus_access_token\", jsonData.access);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n           \"username\": \"denis.test2\",\n           \"email\": \"frunzadenis2.93@gmail.com\",\n           \"password\": \"123456789ab!\"\n         }"
+				},
+				"url": {
+					"raw": "http://localhost:8000/user/api/auth/login/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"user",
+						"api",
+						"auth",
+						"login",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "создать категорию для продукта",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response has correct name\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.name).to.eql(\"Shoe Category\");",
+							"});",
+							"",
+							"pm.test(\"Set category_slug as environment variable\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"category_slug\", jsonData.name);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Shooe Category\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8001/api/category-list",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"api",
+						"category-list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создать продукт",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response has correct name\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.name).to.eql(\"New Product\");",
+							"});",
+							"",
+							"pm.test(\"Set product_Id as environment variable\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"product_Id\", jsonData.pk);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"New Product\",\n    \"price\": 99.99,\n    \"category\": \"{{category_slug}}\",\n    \"description\": \"This is a new product\",\n    \"is_available\": true\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8001/api/product-list",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"api",
+						"product-list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создать заказ",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"orderItems\":[\n        {\n            \"product_id\":\"{{product_Id}}\",\n            \"qty\":38\n        }\n    ],\n    \"token\": \"{{otus_access_token}}\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8002/api/order-create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8002",
+					"path": [
+						"api",
+						"order-create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Запрос для получения всех заказов пользователя",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.sendRequest({",
+							"    url: 'http://localhost:8002/api/user-orders/' + pm.environment.get(\"otus_access_token\"),",
+							"    method: 'GET'",
+							"}, function (err, res) {",
+							"    pm.test(\"No duplicate orders created\", function () {",
+							"        pm.expect(err).to.be.null;",
+							"        var jsonData = res.json();",
+							"        var initialOrderCount = 1;",
+							"",
+							"        pm.expect(jsonData.length).to.equal(initialOrderCount);",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8002/api/user-orders/{{otus_access_token}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8002",
+					"path": [
+						"api",
+						"user-orders",
+						"{{otus_access_token}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
