@@ -1,0 +1,81 @@
+version: '3'
+
+services:
+
+  user_service:
+    container_name: shop-user-service
+    build:
+      context: .
+      dockerfile: shop_user_service/Dockerfile
+    image: shop_user_service
+    environment:
+      - DJANGO_SETTINGS_MODULE=shop_user_service.settings
+    env_file:
+      - .env
+    volumes:
+      - .:/shop_user_service
+    command: >
+      sh -c "python  shop_user_service/manage.py migrate --noinput &&
+             python  shop_user_service/manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+
+  product_service:
+    container_name: shop-product-service
+    build:
+      context: .
+      dockerfile: shop_product_service/shop_product_service/Dockerfile
+    image: shop_product_service
+    volumes:
+      - .:/shop_product_service
+    command: >
+      sh -c "shop_product_service/shop_product_service/manage.py migrate --noinput &&
+             shop_product_service/shop_product_service/manage.py runserver 0.0.0.0:8001"
+    ports:
+      - "8001:8001"
+    depends_on:
+      - user_service
+      
+  order_service:
+    container_name: shop-order-service
+    build:
+      context: .
+      dockerfile: shop_order_service/Dockerfile
+    image: shop_order_service
+    volumes:
+      - .:/shop_order_service
+    command: >
+      sh -c "python shop_order_service/manage.py migrate --noinput &&
+             python shop_order_service/manage.py runserver 0.0.0.0:8002"
+    ports:
+      - "8002:8002"
+    depends_on:
+      - user_service
+      - product_service
+      - redis
+  redis:
+    image: redis:latest
+    container_name: shop-redis
+    ports:
+      - "6379:6379"
+
+  # payment_service:
+  #   container_name: shop_payment_service
+  #   build:
+  #     context: .
+  #     dockerfile: shop_payment_service/Dockerfile
+  #   image: shop_payment_service
+  #   environment:
+  #     - DJANGO_SETTINGS_MODULE=shop_payment_service.settings
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - .:/shop_payment_service
+  #   command: 'python shop_payment_service/manage.py runserver 0.0.0.0:8003'
+  #   ports:
+  #     - "8003:8003"
+  #   networks:
+  #     - my_network
+
+  #   depends_on:
+  #     - order_service
